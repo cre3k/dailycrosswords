@@ -87,6 +87,8 @@ function moveFocusWithArrows(event, input) {
     if (event.key === "ArrowLeft") {
         if (direction == directions.DOWN) {
             direction = directions.ACROSS;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
             return;
         }
         let prev = index - 1;
@@ -97,6 +99,8 @@ function moveFocusWithArrows(event, input) {
     } else if (event.key === "ArrowRight") {
         if (direction == directions.DOWN) {
             direction = directions.ACROSS;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
             return;
         }
         let next = index + 1;
@@ -107,6 +111,8 @@ function moveFocusWithArrows(event, input) {
     } else if (event.key === "ArrowUp") {
         if (direction == directions.ACROSS) {
             direction = directions.DOWN;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
             return;
         }
         let up = index - colCount;
@@ -117,6 +123,8 @@ function moveFocusWithArrows(event, input) {
     } else if (event.key === "ArrowDown") {
         if (direction == directions.ACROSS) {
             direction = directions.DOWN;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
             return;
         }
         let down = index + colCount;
