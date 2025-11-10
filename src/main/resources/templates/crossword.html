@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Crossword</title>
+</head>
+
+<body>
+  <div id="crosswordWrapper" class="crosswordWrapper">
+    <div class="board"
+      th:style="'grid-template-columns: repeat(' + ${crossword.width} + ', 100px); grid-auto-rows: 100px;'">
+      <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
+        th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '')" th:data-index="${iterStat.index}"
+        th:data-clues="${cell.clueIds}">
+        <span class="label" th:text="${cell.label}"></span>
+
+        <input type="text" class="guess" maxlength="1" th:value="${cell.answer}" th:disabled="${cell.clueIds == null}"
+          onkeypress="moveFocus(event, this)" onkeydown="moveFocusWithArrows(event, this)"
+          onfocus="setCurrentCellId(this)">
+      </div>
+    </div>
+
+    <div id="clues">
+      <div id="buttons">
+        <button id="reveal">Reveal letter</button>
+        <button id="autocheck" onclick="performAutocheck()">Check</button>
+      </div>
+      <h3>Across</h3>
+      <div class="clue" th:each="acrossClue, acrossClueStat : ${acrossClues}" th:text="${acrossClue.displayedText}">
+
+      </div>
+      <h3>Down</h3>
+      <div class="clue" th:each="downClue, downClueStat : ${downClues}" th:text="${downClue.displayedText}">
+
+      </div>
+    </div>
+  </div>
+  <article id="fail" class="pico-background-red-250" hidden="true">
+    Try again
+  </article>
+  <article id="success" class="pico-background-jade-300" hidden="true">
+    wow.
+  </article>
+  <script src="/scripts/crossword.js"></script>
+
+</body>
+
+</html>

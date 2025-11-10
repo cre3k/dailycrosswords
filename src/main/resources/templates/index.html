@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="htmx-config" content='{"selfRequestsOnly": false}' />
+    <title>Daily mini</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+    <link href="/styles/index.css" rel="stylesheet">
+</head>
+
+<body>
+    <main class="container">
+        <section>
+            <h1>Daily mini</h1>
+            <div id="crosswordDiv" hx-post="http://localhost:8080/currentCrossword" hx-trigger="load"></div>
+        </section>
+    </main>
+</body>
+
+</html>
