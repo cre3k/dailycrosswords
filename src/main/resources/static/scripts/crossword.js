@@ -3,7 +3,7 @@ const directions = {
     DOWN: "down"
 };
 
-direction = directions.ACROSS;
+let direction = directions.ACROSS;
 const allCells = Array.from(document.querySelectorAll('.cell'));
 const allClues = Array.from(document.querySelectorAll('.clue'));
 const total = allCells.length;
@@ -14,7 +14,7 @@ const rowCount = total / colCount;
 const enabledCount = Array.from(document.querySelectorAll('.guess'))
     .filter(input => !input.disabled).length;
 
-
+// === Устанавливаем текущую клетку ===
 function setCurrentCellId(input) {
     allCells.forEach(cell => cell.removeAttribute('id'));
     const cell = input.closest('.cell');
@@ -25,137 +25,135 @@ function setCurrentCellId(input) {
     paintCurrentClue(input);
 }
 
+// === Подсветка слова ===
 function paintCurrentWord(input) {
     const cell = input.closest('.cell');
     const index = parseInt(cell.dataset.index);
     allCells.forEach(cell => cell.classList.remove('currentWord'));
-    if (direction == directions.ACROSS) {
+
+    if (direction === directions.ACROSS) {
         let start = index - index % colCount;
-        for (let i = start; i < start + colCount; ++i) {
-            allCells[i].classList.add('currentWord');
-        }
-    }
-    if (direction == directions.DOWN) {
+        for (let i = start; i < start + colCount; ++i) allCells[i].classList.add('currentWord');
+    } else {
         let start = index % colCount;
-        for (let i = start; i < total; i += colCount) {
-            allCells[i].classList.add('currentWord');
-        }
+        for (let i = start; i < total; i += colCount) allCells[i].classList.add('currentWord');
     }
 }
 
+// === Подсветка подсказки ===
 function paintCurrentClue(input) {
     const cell = input.closest('.cell');
     const clues = JSON.parse(cell.dataset.clues);
     allClues.forEach(cell => cell.classList.remove('currentWord'));
-    if (direction == directions.ACROSS) {
-        allClues[clues[0]].classList.add('currentWord')
-    } else {
-        allClues[clues[1]].classList.add('currentWord')
-    }
+    if (direction === directions.ACROSS) allClues[clues[0]].classList.add('currentWord');
+    else allClues[clues[1]].classList.add('currentWord');
 }
 
-
-function moveFocus(event, input) {
+function moveFocusForward(input) {
     const cell = input.closest('.cell');
     const index = parseInt(cell.dataset.index);
+    let next = null;
 
+    if (direction === directions.ACROSS) {
+        next = index + 1;
+        while (next < total && (allCells[next].classList.contains('black') || allCells[next].classList.contains('revealed'))) next++;
+    } else if (direction === directions.DOWN) {
+        next = index + colCount;
+        while (next < total && (allCells[next].classList.contains('black') || allCells[next].classList.contains('revealed'))) next += colCount;
+    }
 
-    // Переход при вводе буквы
-    if (event.key.length === 1 && event.key.match(/[a-zA-Zа-яА-Я]/)) {
-        if (direction == directions.ACROSS) {
-            let next = index + 1;
-            while (next < total && allCells[next].classList.contains('black') || allCells[next].classList.contains('revealed')) next++;
-            if (next < total) allCells[next].querySelector('input.guess')?.focus();
-            allCells[next].id = 'current-input';
-            allCells[index].removeAttribute('id');
-        } else if (direction = directions.DOWN) {
-            let down = index + colCount;
-            while (down < total && allCells[down].classList.contains('black') || allCells[down].classList.contains('revealed')) down += colCount;
-            if (down < total) allCells[down].querySelector('input.guess')?.focus();
-            allCells[down].querySelector('input.guess').id = 'current-input';
-            allCells[index].querySelector('input.guess').removeAttribute('id');
-        }
-        checkAnswer();
+    if (next !== null && next < total) {
+        const nextInput = allCells[next].querySelector('input.guess');
+        nextInput?.focus();
     }
 }
 
+function moveFocusBackward(input) {
+    const cell = input.closest('.cell');
+    const index = parseInt(cell.dataset.index);
+    let prev = null;
+
+    if (direction === directions.ACROSS) {
+        prev = index - 1;
+        while (prev >= 0 && (allCells[prev].classList.contains('black') || allCells[prev].classList.contains('revealed'))) prev--;
+    } else {
+        prev = index - colCount;
+        while (prev >= 0 && (allCells[prev].classList.contains('black') || allCells[prev].classList.contains('revealed'))) prev -= colCount;
+    }
+
+    if (prev !== null && prev >= 0) {
+        const prevInput = allCells[prev].querySelector('input.guess');
+        prevInput?.focus();
+    }
+}
+
+// === Стрелки и Backspace ===
 function moveFocusWithArrows(event, input) {
     const cell = input.closest('.cell');
     const index = parseInt(cell.dataset.index);
+    let target = null;
 
-    // Стрелки
     if (event.key === "ArrowLeft") {
-        if (direction == directions.DOWN) {
+        if (direction === directions.DOWN) {
+            direction = directions.ACROSS;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
+            return; // только меняем направление
+        }
+        target = index - 1;
+        while (target >= 0 && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target--;
+    }
+    else if (event.key === "ArrowRight") {
+        if (direction === directions.DOWN) {
             direction = directions.ACROSS;
             paintCurrentWord(input);
             paintCurrentClue(input);
             return;
         }
-        let prev = index - 1;
-        while (prev >= 0 && allCells[prev].classList.contains('black') || allCells[prev].classList.contains('revealed')) prev--;
-        if (prev >= 0) allCells[prev].querySelector('input.guess')?.focus();
-        allCells[prev].id = 'current-input';
-        allCells[index].removeAttribute('id');
-    } else if (event.key === "ArrowRight") {
-        if (direction == directions.DOWN) {
-            direction = directions.ACROSS;
-            paintCurrentWord(input);
-            paintCurrentClue(input);
-            return;
-        }
-        let next = index + 1;
-        while (next < total && allCells[next].classList.contains('black') || allCells[next].classList.contains('revealed')) next++;
-        if (next < total) allCells[next].querySelector('input.guess')?.focus();
-        allCells[next].id = 'current-input';
-        allCells[index].removeAttribute('id');
-    } else if (event.key === "ArrowUp") {
-        if (direction == directions.ACROSS) {
+        target = index + 1;
+        while (target < total && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target++;
+    }
+    else if (event.key === "ArrowUp") {
+        if (direction === directions.ACROSS) {
             direction = directions.DOWN;
             paintCurrentWord(input);
             paintCurrentClue(input);
             return;
         }
-        let up = index - colCount;
-        while (up >= 0 && allCells[up].classList.contains('black') || allCells[up].classList.contains('revealed')) up -= colCount;
-        if (up >= 0) allCells[up].querySelector('input.guess')?.focus();
-        allCells[up].id = 'current-input';
-        allCells[index].removeAttribute('id');
-    } else if (event.key === "ArrowDown") {
-        if (direction == directions.ACROSS) {
+        target = index - colCount;
+        while (target >= 0 && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target -= colCount;
+    }
+    else if (event.key === "ArrowDown") {
+        if (direction === directions.ACROSS) {
             direction = directions.DOWN;
             paintCurrentWord(input);
             paintCurrentClue(input);
             return;
         }
-        let down = index + colCount;
-        while (down < total && allCells[down].classList.contains('black') || allCells[down].classList.contains('revealed')) down += colCount;
-        if (down < total) allCells[down].querySelector('input.guess')?.focus();
-        allCells[down].id = 'current-input';
-        allCells[index].removeAttribute('id');
-    } else if (event.key === "Backspace") {
-        if (direction == directions.ACROSS) {
-            let prev = index - 1;
-            while (prev >= 0 && allCells[prev].classList.contains('black') || allCells[prev].classList.contains('revealed')) prev--;
-            if (prev >= 0) allCells[prev].querySelector('input.guess')?.focus();
-            allCells[prev].id = 'current-input';
-            allCells[index].removeAttribute('id');
+        target = index + colCount;
+        while (target < total && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target += colCount;
+    }
+
+    else if (event.key === "Backspace") {
+        event.preventDefault();
+        if (input.value !== "") {
             input.value = "";
-        } else {
-            let up = index - colCount;
-            while (up >= 0 && allCells[up].classList.contains('black') || allCells[up].classList.contains('revealed')) up -= colCount;
-            if (up >= 0) allCells[up].querySelector('input.guess')?.focus();
-            allCells[up].id = 'current-input';
-            allCells[index].removeAttribute('id');
-            input.value = "";
+            return;
         }
+        moveFocusBackward(input);
+        return;
+    }
+
+    if (target !== null && target >= 0 && target < total) {
+        const nextInput = allCells[target].querySelector('input.guess');
+        nextInput?.focus();
     }
 }
 
 async function checkAnswer() {
     const values = Array.from(inputs).map(input => input.value);
-    console.log(values);
-    nonEmptyCount = values.filter(v => v !== "").length;
-    if (nonEmptyCount != enabledCount) return;
+    const nonEmptyCount = values.filter(v => v !== "").length;
+    if (nonEmptyCount !== enabledCount) return;
 
     try {
         const response = await fetch(`/check`, {
@@ -164,29 +162,21 @@ async function checkAnswer() {
             body: JSON.stringify(values),
             credentials: 'include'
         });
-
         const result = await response.json();
-        console.log('Ответ от сервера:', result);
+
+        const success = document.getElementById("success");
+        const fail = document.getElementById("fail");
+
         if (result) {
             const minutes = Math.floor(elapsed / 60);
             const seconds = Math.floor(elapsed % 60);
-
-            const formatted =
-                String(minutes).padStart(2, '0') + ':' +
-                String(seconds).padStart(2, '0');
-            const audio = new Audio('win.mp3');
-            audio.play();
-            const fail = document.getElementById("fail");
+            const formatted = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
+            new Audio('win.mp3').play();
             fail.hidden = true;
-            const success = document.getElementById("success");
-            success.textContent = "Congraulations! Solved in " + formatted;
+            success.textContent = `Congratulations! Solved in ${formatted}`;
             success.hidden = false;
-
-        }
-        else {
-            const success = document.getElementById("success");
+        } else {
             success.hidden = true;
-            const fail = document.getElementById("fail");
             fail.hidden = false;
         }
     } catch (err) {
@@ -205,31 +195,39 @@ async function performAutocheck() {
             credentials: 'include'
         });
 
-        const indicesToDisable = await response.json(); // массив чисел
-        console.log('Ответ от сервера:', indicesToDisable);
-
+        const indicesToDisable = await response.json();
         indicesToDisable.forEach(index => {
             const cell = document.querySelector(`.cell[data-index="${index}"]`);
-            if (cell) {
-                const input = cell.querySelector('input.guess');
-                if (input) {
-                    input.disabled = true;
-                    input.style.color = 'blue';
-                    cell.classList.add('revealed');
-                }
+            const input = cell?.querySelector('input.guess');
+            if (input) {
+                input.disabled = true;
+                input.style.color = 'blue';
+                cell.classList.add('revealed');
             }
         });
-
     } catch (err) {
         console.error('Ошибка при отправке:', err);
     }
 }
 
 const inputs = document.querySelectorAll('.guess');
-inputs.forEach(input => {
-    input.addEventListener('input', checkAnswer);
-});
 
+inputs.forEach(input => {
+
+    input.maxLength = 1;
+
+    // Ввод буквы
+    input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (!/^[a-zA-Zа-яА-Я]$/.test(value)) {
+            e.target.value = '';
+            return;
+        }
+        moveFocusForward(input);
+        checkAnswer();
+    });
+
+});
 
 document.getElementById('reveal').addEventListener('click', async () => {
     const cell = document.getElementById('current-input');
@@ -247,7 +245,6 @@ document.getElementById('reveal').addEventListener('click', async () => {
         if (!response.ok) throw new Error('Ошибка сети');
 
         const letter = await response.text();
-
         const input = cell.querySelector('input.guess');
         if (input) {
             input.value = letter;
@@ -262,12 +259,12 @@ document.getElementById('reveal').addEventListener('click', async () => {
     }
 });
 
-
+// === Таймер ===
 let startTime;
 let intervalId;
 let elapsed = 0;
 
-window.onload = function () {
+function startTimer() {
     startTime = Date.now();
     intervalId = setInterval(updateTimer, 100);
 }
@@ -279,8 +276,7 @@ function updateTimer() {
 
 function stopTimer() {
     clearInterval(intervalId);
-
-    elapsed = Math.floor((now - startTime) / 1000);
-
-    console.log(`Таймер остановлен. Прошло ${elapsed.toFixed(1)} сек`);
+    elapsed = Math.floor((Date.now() - startTime) / 1000);
 }
+
+startTimer();

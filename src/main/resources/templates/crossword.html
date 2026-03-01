@@ -15,8 +15,7 @@
         th:data-clues="${cell.clueIds}">
         <span class="label" th:text="${cell.label}"></span>
 
-        <input type="text" class="guess" maxlength="1" th:value="${cell.answer}" th:disabled="${cell.clueIds == null}"
-          onkeypress="moveFocus(event, this)" onkeydown="moveFocusWithArrows(event, this)"
+        <input type="text" class="guess" maxlength="1" th:value="${cell.answer}" th:disabled="${cell.clueIds == null}" onkeydown="moveFocusWithArrows(event, this)"
           onfocus="setCurrentCellId(this)">
       </div>
     </div>

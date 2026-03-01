@@ -19,7 +19,7 @@ import java.util.Objects;
 
 @Service
 public class CrosswordServiceImpl implements CrosswordService {
-    private static final String REQUEST_URL_FORMAT = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini/{currentDate}.json";
+    private static final String REQUEST_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini.json";
     private static final String NYT_TIMEZONE = "America/New_York";
 
     RestClient restClient = RestClient.create();
@@ -60,7 +60,8 @@ public class CrosswordServiceImpl implements CrosswordService {
         LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
 
         String response = restClient.get()
-                .uri(REQUEST_URL_FORMAT, currentDate.toString())
+                .uri(REQUEST_URL)
+                .header("x-games-auth-bypass", "true") // без этого хедера будет 403 forbidden
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .body(String.class);
