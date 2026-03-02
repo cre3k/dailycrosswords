@@ -201,8 +201,7 @@ async function performAutocheck() {
             const input = cell?.querySelector('input.guess');
             if (input) {
                 input.disabled = true;
-                input.style.color = 'blue';
-                cell.classList.add('revealed');
+                cell.querySelector("input.guess").classList.add('revealed');
             }
         });
     } catch (err) {
@@ -249,8 +248,7 @@ document.getElementById('reveal').addEventListener('click', async () => {
         if (input) {
             input.value = letter;
             input.disabled = true;
-            input.style.color = 'blue';
-            cell.classList.add('revealed');
+            cell.querySelector("input.guess").classList.add('revealed');
         }
         cell.removeAttribute('id');
         checkAnswer();
