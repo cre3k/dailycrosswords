@@ -100,7 +100,11 @@ function moveFocusWithArrows(event, input) {
             paintCurrentClue(input);
             return; // только меняем направление
         }
-        target = index - 1;
+        if (index == 0) {
+            target = total - 1;
+        } else {
+            target = index - 1;
+        }
         while (target >= 0 && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target--;
     }
     else if (event.key === "ArrowRight") {
@@ -110,7 +114,11 @@ function moveFocusWithArrows(event, input) {
             paintCurrentClue(input);
             return;
         }
-        target = index + 1;
+        if (index == total - 1) {
+            target = 0;
+        } else {
+            target = index + 1;
+        }
         while (target < total && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target++;
     }
     else if (event.key === "ArrowUp") {
@@ -120,8 +128,19 @@ function moveFocusWithArrows(event, input) {
             paintCurrentClue(input);
             return;
         }
-        target = index - colCount;
-        while (target >= 0 && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target -= colCount;
+        if (index == 0) {
+            target = total - 1;
+        } else if (index - colCount < 0) {
+            target = index - 1 + (rowCount - 1) * colCount;
+        } else {
+            target = index - colCount;
+        }
+        while (target > 0 && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) {
+            target -= colCount;
+            if (target < 0) {
+                target = total + target - 1;
+            }
+        }
     }
     else if (event.key === "ArrowDown") {
         if (direction === directions.ACROSS) {
@@ -130,15 +149,21 @@ function moveFocusWithArrows(event, input) {
             paintCurrentClue(input);
             return;
         }
-        target = index + colCount;
+        if (index + colCount > total) {
+            target = (index + 1) % colCount ;
+        } else {
+            target = index + colCount;
+        }
         while (target < total && (allCells[target].classList.contains('black') || allCells[target].classList.contains('revealed'))) target += colCount;
+        if (target >= total) {
+            target = (target + 1) % colCount
+        }
     }
 
     else if (event.key === "Backspace") {
         event.preventDefault();
         if (input.value !== "") {
             input.value = "";
-            return;
         }
         moveFocusBackward(input);
         return;
@@ -187,6 +212,14 @@ async function checkAnswer() {
 async function performAutocheck() {
     const values = Array.from(inputs).map(input => input.value);
 
+    const autochecked = document.getElementById("autochecked");
+
+            autochecked.hidden = false;
+
+            setTimeout(() => {
+                autochecked.hidden = true;
+            }, 3000);
+
     try {
         const response = await fetch(`/autocheck`, {
             method: 'POST',
@@ -202,6 +235,7 @@ async function performAutocheck() {
             if (input) {
                 input.disabled = true;
                 cell.querySelector("input.guess").classList.add('revealed');
+                cell.classList.add('revealed');
             }
         });
     } catch (err) {
@@ -249,6 +283,7 @@ document.getElementById('reveal').addEventListener('click', async () => {
             input.value = letter;
             input.disabled = true;
             cell.querySelector("input.guess").classList.add('revealed');
+            cell.classList.add('revealed');
         }
         cell.removeAttribute('id');
         checkAnswer();
