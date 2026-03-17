@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.cre3k'
-version = '0.0.2'
+version = '0.0.4'
 description = 'crosswords'
 
 java {

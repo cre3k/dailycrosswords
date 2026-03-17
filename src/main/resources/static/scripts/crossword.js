@@ -3,6 +3,14 @@ const directions = {
     DOWN: "down"
 };
 
+const controlKeys = new Set([
+    "ArrowUp",
+    "ArrowDown",
+    "ArrowLeft",
+    "ArrowRight",
+    "Backspace"
+]);
+
 let direction = directions.ACROSS;
 const allCells = Array.from(document.querySelectorAll('.cell'));
 const allClues = Array.from(document.querySelectorAll('.clue'));
@@ -53,6 +61,7 @@ function moveFocusForward(input) {
     const cell = input.closest('.cell');
     const index = parseInt(cell.dataset.index);
     let next = null;
+    let nextInput = null;
 
     if (direction === directions.ACROSS) {
         next = index + 1;
@@ -63,15 +72,17 @@ function moveFocusForward(input) {
     }
 
     if (next !== null && next < total) {
-        const nextInput = allCells[next].querySelector('input.guess');
+        nextInput = allCells[next].querySelector('input.guess');
         nextInput?.focus();
     }
+    return nextInput;
 }
 
 function moveFocusBackward(input) {
     const cell = input.closest('.cell');
     const index = parseInt(cell.dataset.index);
     let prev = null;
+    let prevInput = null;
 
     if (direction === directions.ACROSS) {
         prev = index - 1;
@@ -82,9 +93,10 @@ function moveFocusBackward(input) {
     }
 
     if (prev !== null && prev >= 0) {
-        const prevInput = allCells[prev].querySelector('input.guess');
+        prevInput = allCells[prev].querySelector('input.guess');
         prevInput?.focus();
     }
+    return prevInput;
 }
 
 // === Стрелки и Backspace ===
@@ -164,8 +176,12 @@ function moveFocusWithArrows(event, input) {
         event.preventDefault();
         if (input.value !== "") {
             input.value = "";
+            moveFocusBackward(input);
+        } else {
+            prevInput = moveFocusBackward(input);
+            prevInput.value = "";
+            moveFocusBackward(input);
         }
-        moveFocusBackward(input);
         return;
     }
 
@@ -249,6 +265,15 @@ inputs.forEach(input => {
 
     input.maxLength = 1;
 
+    input.addEventListener('keydown', (e) => {
+        const value = e.target.value;
+        const key = e.key;
+        if (!controlKeys.has(event.key) && value != "") {
+            let nextInput = moveFocusForward(input);
+            checkAnswer();
+        }
+    });
+
     // Ввод буквы
     input.addEventListener('input', (e) => {
         const value = e.target.value;
@@ -259,6 +284,7 @@ inputs.forEach(input => {
         moveFocusForward(input);
         checkAnswer();
     });
+
 
 });
 
