@@ -22,7 +22,6 @@ import java.util.Optional;
 @Service
 public class CrosswordServiceImpl implements CrosswordService {
     private static final String REQUEST_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini.json";
-    private static final String NYT_TIMEZONE = "America/New_York";
 
     private static final Gson GSON = new Gson();
 

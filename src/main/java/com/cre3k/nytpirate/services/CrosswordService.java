@@ -7,6 +7,8 @@ import java.util.List;
 
 public interface CrosswordService {
 
+    public static final String NYT_TIMEZONE = "America/New_York";
+
     public boolean checkCurrentUserCrossword(List<String> answersToCheck);
 
     Crossword getClientUserCrossword();
