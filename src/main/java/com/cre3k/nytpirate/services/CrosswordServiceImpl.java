@@ -4,10 +4,11 @@ import com.cre3k.nytpirate.model.Cell;
 import com.cre3k.nytpirate.model.Clue;
 import com.cre3k.nytpirate.model.Crossword;
 import com.cre3k.nytpirate.model.Direction;
+import com.cre3k.nytpirate.persistence.CrosswordEntity;
+import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.session.UserSession;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -16,58 +17,41 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class CrosswordServiceImpl implements CrosswordService {
     private static final String REQUEST_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini.json";
     private static final String NYT_TIMEZONE = "America/New_York";
 
+    private static final Gson GSON = new Gson();
+
     RestClient restClient = RestClient.create();
 
     @Autowired
     UserSession userSession;
 
-    @Override
-    public Crossword getCurrentCrossword() {
-        Crossword crossword = userSession.getCurrentUsersCrossword();
+    @Autowired
+    CrosswordRepository crosswordRepository;
 
-        if (crossword == null) {
-            crossword = getCurrentCrosswordWithAnswers();
-            userSession.setCurrentUsersCrossword(crossword);
-        }
 
-        // Создаем копию кроссворда для клиента без ответов
-        Crossword copyForClient = new Crossword();
-        copyForClient.setHeight(crossword.getHeight());
-        copyForClient.setWidth(crossword.getWidth());
-        copyForClient.setClues(crossword.getClues());
+    private Crossword getTodayCrosswordWithAnswers() {
 
-        List<Cell> cellsCopy = crossword.getCells().stream()
-                .map(cell -> new Cell(
-                        null,
-                        cell.getClueIds(),
-                        cell.getLabel()
-                ))
-                .toList();
+        LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
 
-        copyForClient.setCells(cellsCopy);
-
-        return copyForClient;
+        return getCrosswordByDateWithAnswer(currentDate).orElseGet(() -> {
+            saveTodaysCrossword();
+            return parseCrosswordFromJson(crosswordRepository.findByDate(currentDate).get().getPayload());
+        });
     }
 
 
-    private Crossword getCurrentCrosswordWithAnswers() {
-        LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
+    private Optional<Crossword> getCrosswordByDateWithAnswer(LocalDate date) {
+        return crosswordRepository.findByDate(date).map(entity -> parseCrosswordFromJson(entity.getPayload()));
+    }
 
-        String response = restClient.get()
-                .uri(REQUEST_URL)
-                .header("x-games-auth-bypass", "true") // без этого хедера будет 403 forbidden
-                .accept(MediaType.APPLICATION_JSON)
-                .retrieve()
-                .body(String.class);
-
-        Gson gson = new Gson();
-        JsonObject root = JsonParser.parseString(response).getAsJsonObject();
+    private Crossword parseCrosswordFromJson(String crosswordJson) {
+        JsonObject root = JsonParser.parseString(crosswordJson).getAsJsonObject();
         Crossword crossword = new Crossword();
 
         JsonArray body = root.getAsJsonArray("body");
@@ -77,7 +61,7 @@ public class CrosswordServiceImpl implements CrosswordService {
 
         List<Cell> cellList = new ArrayList<>();
         for (JsonElement element : cells) {
-            cellList.add(gson.fromJson(element, Cell.class));
+            cellList.add(GSON.fromJson(element, Cell.class));
         }
         crossword.setCells(cellList);
 
@@ -94,14 +78,12 @@ public class CrosswordServiceImpl implements CrosswordService {
 
         // Проверим результат
         cellList.forEach(System.out::println);
-        System.out.println(response);
-        crossword.setCells(cellList);
 
         return crossword;
     }
 
     @Override
-    public boolean checkCurrentCrossword(List<String> answersToCheck) {
+    public boolean checkCurrentUserCrossword(List<String> answersToCheck) {
         Crossword crossword = userSession.getCurrentUsersCrossword();
         if (crossword.getCells().size() != answersToCheck.size()) {
             return false;
@@ -118,7 +100,7 @@ public class CrosswordServiceImpl implements CrosswordService {
     }
 
     @Override
-    public List<Integer> autocheckCurrentCrossword(List<String> answersToCheck) {
+    public List<Integer> autocheckCurrentUserCrossword(List<String> answersToCheck) {
         Crossword crossword = userSession.getCurrentUsersCrossword();
         List<Integer> correctLetters = new ArrayList<>();
         if (crossword.getCells().size() != answersToCheck.size()) {
@@ -136,8 +118,53 @@ public class CrosswordServiceImpl implements CrosswordService {
     }
 
     @Override
+    public void saveTodaysCrossword() {
+        LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
+        if (crosswordRepository.existsByDate(currentDate)) {
+            return;
+        }
+        String json = restClient.get().uri(REQUEST_URL).header("x-games-auth-bypass", "true").retrieve().body(String.class);
+
+        CrosswordEntity entity = new CrosswordEntity();
+        entity.setDate(currentDate);
+        entity.setPayload(json);
+
+        crosswordRepository.save(entity);
+    }
+
+    @Override
+    public Crossword getClientUserCrossword() {
+        Crossword crossword = userSession.getCurrentUsersCrossword();
+        Crossword copyForClient = new Crossword();
+        copyForClient.setHeight(crossword.getHeight());
+        copyForClient.setWidth(crossword.getWidth());
+        copyForClient.setClues(crossword.getClues());
+
+        List<Cell> cellsCopy = crossword.getCells().stream().map(cell -> new Cell(null, cell.getClueIds(), cell.getLabel())).toList();
+
+        copyForClient.setCells(cellsCopy);
+
+        return copyForClient;
+    }
+
+    @Override
+    public void configureUserCrossword(LocalDate date) {
+        Crossword crossword = getCrosswordByDateWithAnswer(date).get();
+        userSession.setCurrentUsersCrossword(crossword);
+    }
+
+    @Override
+    public void configureTodayUserCrossword() {
+        Crossword crossword = getTodayCrosswordWithAnswers();
+        userSession.setCurrentUsersCrossword(crossword);
+    }
+
+
+    @Override
     public String revealLetter(int index) {
         Crossword crossword = userSession.getCurrentUsersCrossword();
         return crossword.getCells().get(index).getAnswer();
     }
+
+
 }

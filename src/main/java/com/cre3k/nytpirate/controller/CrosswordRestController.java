@@ -16,7 +16,7 @@ public class CrosswordRestController {
 
     @PostMapping("/check")
     public boolean checkAnswers(@RequestBody List<String> answersToCheck) {
-        return crosswordService.checkCurrentCrossword(answersToCheck);
+        return crosswordService.checkCurrentUserCrossword(answersToCheck);
     }
 
     @PostMapping("/reveal")
@@ -26,6 +26,6 @@ public class CrosswordRestController {
 
     @PostMapping("/autocheck")
     public List<Integer> revealLetter(@RequestBody List<String> answersToCheck) {
-        return crosswordService.autocheckCurrentCrossword(answersToCheck);
+        return crosswordService.autocheckCurrentUserCrossword(answersToCheck);
     }
 }

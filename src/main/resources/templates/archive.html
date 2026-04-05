@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Archive</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link href="/styles/index.css" rel="stylesheet">
+</head>
+<body>
+<main class="container">
+    <header class="header">
+        <h1 th:text="Archive"></h1>
+        <a href="/">Today's crossword</a>
+    </header>
+    <div class="">
+        <div>
+            <div th:each="crosswordEntity : ${crosswordEntities}">
+                <a th:href="@{'/archive/' + ${crosswordEntity}}" th:text="${crosswordEntity}"></a>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

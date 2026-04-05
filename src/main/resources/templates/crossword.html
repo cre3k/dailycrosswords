@@ -2,50 +2,55 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Crossword</title>
+    <meta charset="UTF-8">
+    <title>Crossword</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.colors.min.css">
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
+    <link href="/styles/index.css" rel="stylesheet">
 </head>
 
 <body>
-  <div id="crosswordWrapper" class="crosswordWrapper">
+<div id="crosswordWrapper" class="crosswordWrapper">
     <div class="board"
-      th:style="'grid-template-columns: repeat(' + ${crossword.width} + ', 100px); grid-auto-rows: 100px;'">
-      <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
-        th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '')" th:data-index="${iterStat.index}"
-        th:data-clues="${cell.clueIds}">
-        <span class="label" th:text="${cell.label}"></span>
+         th:style="'grid-template-columns: repeat(' + ${crossword.width} + ', 100px); grid-auto-rows: 100px;'">
+        <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
+             th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '')" th:data-index="${iterStat.index}"
+             th:data-clues="${cell.clueIds}">
+            <span class="label" th:text="${cell.label}"></span>
 
-        <input type="text" class="guess" maxlength="1" th:value="${cell.answer}" th:disabled="${cell.clueIds == null}" onkeydown="moveFocusWithArrows(event, this)"
-          onfocus="setCurrentCellId(this)">
-      </div>
+            <input type="text" class="guess" maxlength="1" th:value="${cell.answer}"
+                   th:disabled="${cell.clueIds == null}" onkeydown="moveFocusWithArrows(event, this)"
+                   onfocus="setCurrentCellId(this)">
+        </div>
     </div>
 
     <div id="clues">
-      <div id="buttons">
-        <button id="reveal">Reveal letter</button>
-        <button id="autocheck" onclick="performAutocheck()">Check</button>
-      </div>
-      <h3>Across</h3>
-      <div class="clue" th:each="acrossClue, acrossClueStat : ${acrossClues}" th:text="${acrossClue.displayedText}">
+        <div id="buttons">
+            <button id="reveal">Reveal letter</button>
+            <button id="autocheck" onclick="performAutocheck()">Check</button>
+        </div>
+        <h3>Across</h3>
+        <div class="clue" th:each="acrossClue, acrossClueStat : ${acrossClues}" th:text="${acrossClue.displayedText}">
 
-      </div>
-      <h3>Down</h3>
-      <div class="clue" th:each="downClue, downClueStat : ${downClues}" th:text="${downClue.displayedText}">
+        </div>
+        <h3>Down</h3>
+        <div class="clue" th:each="downClue, downClueStat : ${downClues}" th:text="${downClue.displayedText}">
 
-      </div>
+        </div>
     </div>
-  </div>
-  <p>Move across the tiles using arrow keys</p>
-  <article id="fail" class="pico-background-red-250" hidden="true">
+</div>
+<p>Move across the tiles using arrow keys</p>
+<article id="fail" class="pico-background-red-250" hidden="true">
     Something isn't right, try again
-  </article>
-  <article id="success" class="pico-background-jade-300" hidden="true">
+</article>
+<article id="success" class="pico-background-jade-300" hidden="true">
     wow.
-  </article>
-  <article id="autochecked" class="pico-background-azure-250" hidden="true">
+</article>
+<article id="autochecked" class="pico-background-azure-250" hidden="true">
     Autochecked, all the right letters are now blue-ish
-  </article>
-  <script src="/scripts/crossword.js"></script>
+</article>
+<script src="/scripts/crossword.js"></script>
 
 </body>
 

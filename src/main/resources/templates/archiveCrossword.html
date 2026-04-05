@@ -1,6 +1,7 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 
+<html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,17 +13,19 @@
     <script src="https://unpkg.com/htmx.org@2.0.1"></script>
     <link href="/styles/index.css" rel="stylesheet">
 </head>
-
 <body>
-    <main class="container">
-        <section>
-            <header class="header">
-                <h1>Daily mini</h1>
-                <a href="/archive">Archive</a>
-            </header>
-            <div id="crosswordDiv" hx-get="/crossword/current" hx-trigger="load" hx-indicator="#spinner"></div>
-        </section>
-    </main>
+<main class="container">
+    <section>
+        <header class="header">
+            <h1 th:text="${date} + ' mini'"></h1>
+            <a href="/archive">Archive</a>
+        </header>
+        <div id="crosswordDiv"
+             th:hx-get="@{/crossword/{date}(date=${date})}"
+             hx-trigger="load"
+             hx-indicator="#spinner">
+        </div>
+    </section>
+</main>
 </body>
-
 </html>
