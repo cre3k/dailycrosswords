@@ -1,6 +1,5 @@
 package com.cre3k.nytpirate.scheduler;
 
-import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.services.CrosswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
