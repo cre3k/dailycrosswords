@@ -19,14 +19,11 @@
 
 ## Установка и запуск
 
-Для запуска необходимо собрать проект 
+1. Установить docker
+2. Собрать и запустить контейнеры `docker compose up --build`
+Будут запущены два контейнера:
 
-`./gradlew clean build`
+nyt-pirate — Spring Boot приложение
+postgres-db — PostgreSQL база данных
 
-Запустить jar 
-
-`java -jar build/libs/nytpirate-0.0.1-SNAPSHOT.jar`
-
-При необходимости можно указать порт при запуске 
-
-`java -jar build/libs/nytpirate-0.0.1-SNAPSHOT.jar --server.port=9090` 
+После запуска приложение будет доступно на порту 9090 `http://localhost:9090`
