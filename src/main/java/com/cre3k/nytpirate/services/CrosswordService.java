@@ -7,9 +7,9 @@ import java.util.List;
 
 public interface CrosswordService {
 
-    public static final String NYT_TIMEZONE = "America/New_York";
+    String NYT_TIMEZONE = "America/New_York";
 
-    public boolean checkCurrentUserCrossword(List<String> answersToCheck);
+    boolean checkCurrentUserCrossword(List<String> answersToCheck);
 
     Crossword getClientUserCrossword();
 
@@ -17,10 +17,10 @@ public interface CrosswordService {
 
     void configureTodayUserCrossword();
 
-    public String revealLetter(int index);
+    String revealLetter(int index);
 
-    public List<Integer> autocheckCurrentUserCrossword(List<String> answersToCheck);
+    List<Integer> autocheckCurrentUserCrossword(List<String> answersToCheck);
 
-    public void saveTodaysCrossword();
+    void saveTodaysCrossword();
 
 }

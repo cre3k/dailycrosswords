@@ -21,11 +21,6 @@ import java.util.Optional;
 
 @Service
 public class CrosswordServiceImpl implements CrosswordService {
-    private static final String REQUEST_URL = "https://www.nytimes.com/svc/crosswords/v6/puzzle/mini.json";
-
-    private static final Gson GSON = new Gson();
-
-    RestClient restClient = RestClient.create();
 
     @Autowired
     UserSession userSession;
@@ -33,6 +28,11 @@ public class CrosswordServiceImpl implements CrosswordService {
     @Autowired
     CrosswordRepository crosswordRepository;
 
+    @Autowired
+    CrosswordParser parser;
+
+    @Autowired
+    CrosswordClient client;
 
     private Crossword getTodayCrosswordWithAnswers() {
 
@@ -40,45 +40,13 @@ public class CrosswordServiceImpl implements CrosswordService {
 
         return getCrosswordByDateWithAnswer(currentDate).orElseGet(() -> {
             saveTodaysCrossword();
-            return parseCrosswordFromJson(crosswordRepository.findByDate(currentDate).get().getPayload());
+            return parser.parseCrosswordFromJson(crosswordRepository.findByDate(currentDate).get().getPayload());
         });
     }
 
 
     private Optional<Crossword> getCrosswordByDateWithAnswer(LocalDate date) {
-        return crosswordRepository.findByDate(date).map(entity -> parseCrosswordFromJson(entity.getPayload()));
-    }
-
-    private Crossword parseCrosswordFromJson(String crosswordJson) {
-        JsonObject root = JsonParser.parseString(crosswordJson).getAsJsonObject();
-        Crossword crossword = new Crossword();
-
-        JsonArray body = root.getAsJsonArray("body");
-
-        JsonObject board = body.get(0).getAsJsonObject();
-        JsonArray cells = board.getAsJsonArray("cells");
-
-        List<Cell> cellList = new ArrayList<>();
-        for (JsonElement element : cells) {
-            cellList.add(GSON.fromJson(element, Cell.class));
-        }
-        crossword.setCells(cellList);
-
-        List<Clue> clueList = new ArrayList<>();
-        JsonArray clues = board.getAsJsonArray("clues");
-        for (int i = 0; i < clues.size(); ++i) {
-            JsonObject clue = clues.get(i).getAsJsonObject();
-            clueList.add(new Clue(Direction.fromTitle(clue.get("direction").getAsString()), clue.getAsJsonArray("text").get(0).getAsJsonObject().get("plain").getAsString(), clue.get("label").getAsString()));
-        }
-        crossword.setClues(clueList);
-        crossword.setHeight(board.getAsJsonObject("dimensions").getAsJsonPrimitive("height").getAsInt());
-        crossword.setWidth(board.getAsJsonObject("dimensions").getAsJsonPrimitive("width").getAsInt());
-
-
-        // Проверим результат
-        cellList.forEach(System.out::println);
-
-        return crossword;
+        return crosswordRepository.findByDate(date).map(entity -> parser.parseCrosswordFromJson(entity.getPayload()));
     }
 
     @Override
@@ -122,7 +90,7 @@ public class CrosswordServiceImpl implements CrosswordService {
         if (crosswordRepository.existsByDate(currentDate)) {
             return;
         }
-        String json = restClient.get().uri(REQUEST_URL).header("x-games-auth-bypass", "true").retrieve().body(String.class);
+        String json = client.getTodayCrosswordJson();
 
         CrosswordEntity entity = new CrosswordEntity();
         entity.setDate(currentDate);

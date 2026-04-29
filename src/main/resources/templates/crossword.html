@@ -13,7 +13,7 @@
 <body>
 <div id="crosswordWrapper" class="crosswordWrapper">
     <div class="board"
-         th:style="'grid-template-columns: repeat(' + ${crossword.width} + ', 100px); grid-auto-rows: 100px;'">
+         th:style="'--cols: ' + ${crossword.width} + ';'">
         <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
              th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '')" th:data-index="${iterStat.index}"
              th:data-clues="${cell.clueIds}">
@@ -23,6 +23,9 @@
                    th:disabled="${cell.clueIds == null}" onkeydown="moveFocusWithArrows(event, this)"
                    onfocus="setCurrentCellId(this)">
         </div>
+    </div>
+    <div id="currentClueBar" class="current-clue-bar">
+        <span id="currentClueText">Select a cell</span>
     </div>
 
     <div id="clues">

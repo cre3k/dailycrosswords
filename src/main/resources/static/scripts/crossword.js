@@ -17,10 +17,11 @@ const allClues = Array.from(document.querySelectorAll('.clue'));
 const total = allCells.length;
 const board = document.querySelector('.board');
 const width = board.style.gridTemplateColumns.split('(')[1]?.split(',')[0].trim();
-const colCount = parseInt(width) || 5;
+const colCount = parseInt(getComputedStyle(board).getPropertyValue('--cols')) || 5;
 const rowCount = total / colCount;
 const enabledCount = Array.from(document.querySelectorAll('.guess'))
     .filter(input => !input.disabled).length;
+
 
 // === Устанавливаем текущую клетку ===
 function setCurrentCellId(input) {
@@ -40,11 +41,24 @@ function paintCurrentWord(input) {
     allCells.forEach(cell => cell.classList.remove('currentWord'));
 
     if (direction === directions.ACROSS) {
-        let start = index - index % colCount;
-        for (let i = start; i < start + colCount; ++i) allCells[i].classList.add('currentWord');
+        // находим начало слова (идём влево до чёрной или края строки)
+        let rowStart = index - index % colCount;
+        let start = index;
+        while (start > rowStart && !allCells[start - 1].classList.contains('black')) start--;
+
+        for (let i = start; i < rowStart + colCount; ++i) {
+            if (allCells[i].classList.contains('black')) break;
+            allCells[i].classList.add('currentWord');
+        }
     } else {
-        let start = index % colCount;
-        for (let i = start; i < total; i += colCount) allCells[i].classList.add('currentWord');
+        let colStart = index % colCount;
+        let start = index;
+        while (start - colCount >= 0 && !allCells[start - colCount].classList.contains('black')) start -= colCount;
+
+        for (let i = start; i < total; i += colCount) {
+            if (allCells[i].classList.contains('black')) break;
+            allCells[i].classList.add('currentWord');
+        }
     }
 }
 
@@ -52,9 +66,13 @@ function paintCurrentWord(input) {
 function paintCurrentClue(input) {
     const cell = input.closest('.cell');
     const clues = JSON.parse(cell.dataset.clues);
-    allClues.forEach(cell => cell.classList.remove('currentWord'));
-    if (direction === directions.ACROSS) allClues[clues[0]].classList.add('currentWord');
-    else allClues[clues[1]].classList.add('currentWord');
+    allClues.forEach(c => c.classList.remove('currentWord'));
+
+    const activeClue = direction === directions.ACROSS ? allClues[clues[0]] : allClues[clues[1]];
+    activeClue.classList.add('currentWord');
+
+    const bar = document.getElementById('currentClueText');
+    if (bar && activeClue) bar.textContent = activeClue.textContent;
 }
 
 function moveFocusForward(input) {
@@ -339,3 +357,22 @@ function stopTimer() {
 }
 
 startTimer();
+
+let previousCellId = null;
+
+allCells.forEach(cell => {
+    cell.addEventListener('mousedown', () => {
+        previousCellId = document.getElementById('current-input')?.dataset.index;
+    });
+
+    cell.addEventListener('click', () => {
+        const input = cell.querySelector('input.guess');
+        if (!input) return;
+
+        if (cell.dataset.index === previousCellId) {
+            direction = direction === directions.ACROSS ? directions.DOWN : directions.ACROSS;
+            paintCurrentWord(input);
+            paintCurrentClue(input);
+        }
+    });
+});
