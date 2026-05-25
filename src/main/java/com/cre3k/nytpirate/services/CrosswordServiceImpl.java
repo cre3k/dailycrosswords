@@ -1,16 +1,12 @@
 package com.cre3k.nytpirate.services;
 
-import com.cre3k.nytpirate.model.Cell;
-import com.cre3k.nytpirate.model.Clue;
-import com.cre3k.nytpirate.model.Crossword;
-import com.cre3k.nytpirate.model.Direction;
+import com.cre3k.nytpirate.model.*;
 import com.cre3k.nytpirate.persistence.CrosswordEntity;
 import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.session.UserSession;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -90,7 +86,7 @@ public class CrosswordServiceImpl implements CrosswordService {
         if (crosswordRepository.existsByDate(currentDate)) {
             return;
         }
-        String json = client.getTodayCrosswordJson();
+        String json = client.getTodayCrosswordJson(CrosswordType.MINI);
 
         CrosswordEntity entity = new CrosswordEntity();
         entity.setDate(currentDate);
@@ -123,6 +119,14 @@ public class CrosswordServiceImpl implements CrosswordService {
     @Override
     public void configureTodayUserCrossword() {
         Crossword crossword = getTodayCrosswordWithAnswers();
+        userSession.setCurrentUsersCrossword(crossword);
+    }
+
+    // TODO: всегда фетчит кроссворд с сайта NYT напрямую а не из БД, временная реализация для proof of concept
+    @Override
+    public void configureTodayUserCrossword(CrosswordType type) {
+        String json = client.getTodayCrosswordJson(type);
+        Crossword crossword = parser.parseCrosswordFromJson(json);
         userSession.setCurrentUsersCrossword(crossword);
     }
 

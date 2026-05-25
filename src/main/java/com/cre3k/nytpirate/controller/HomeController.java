@@ -3,6 +3,7 @@ package com.cre3k.nytpirate.controller;
 
 import com.cre3k.nytpirate.model.Clue;
 import com.cre3k.nytpirate.model.Crossword;
+import com.cre3k.nytpirate.model.CrosswordType;
 import com.cre3k.nytpirate.model.Direction;
 import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.services.CrosswordService;
@@ -44,6 +45,20 @@ public class HomeController {
         return "crossword";
     }
 
+    @GetMapping("/crossword/current/{type}")
+    public String currentCrosswordByType(@PathVariable CrosswordType type, Model model) {
+        crosswordService.configureTodayUserCrossword(type);
+        Crossword crossword = crosswordService.getClientUserCrossword();
+        List<Clue> acrossClues = crossword.getClues().stream()
+                .filter(clue -> clue.getDirection().equals(Direction.ACROSS)).toList();
+        List<Clue> downClues = crossword.getClues().stream()
+                .filter(clue -> clue.getDirection().equals(Direction.DOWN)).toList();
+        model.addAttribute("crossword", crossword);
+        model.addAttribute("acrossClues", acrossClues);
+        model.addAttribute("downClues", downClues);
+        return "crossword";
+    }
+
     @GetMapping("/archive")
     public String showButtons(Model model) {
         List<LocalDate> buttons = crosswordRepository.findAllDates();
@@ -71,6 +86,15 @@ public class HomeController {
         model.addAttribute("acrossClues", acrossClues);
         model.addAttribute("downClues", downClues);
         return "crossword";
+    }
+
+    @GetMapping("/midi")
+    public String midiTemplate(Model model) {
+        return "midi";
+    }
+    @GetMapping("/maxy")
+    public String maxyTemplate(Model model) {
+        return "maxy";
     }
 
 }
