@@ -15,7 +15,7 @@
     <div class="board"
          th:style="'--cols: ' + ${crossword.width} + ';'">
         <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
-             th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '')" th:data-index="${iterStat.index}"
+             th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '') + (${cell.circled} ? ' circled' : '')" th:data-index="${iterStat.index}"
              th:data-clues="${cell.clueIds}">
             <span class="label" th:text="${cell.label}"></span>
 

@@ -13,4 +13,9 @@ public class Cell {
     @SerializedName("clues")
     private List<Integer> clueIds;
     private String label;
+    private int type;
+
+    public boolean isCircled(){
+        return type == 2;
+    }
 }

@@ -97,6 +97,20 @@ input.guess:active {
 
 }
 
+.cell.circled {
+    position: relative;
+}
+
+.cell.circled::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    border: 2px solid dimgray;
+    pointer-events: none; /* чтобы не мешал кликам */
+    box-sizing: border-box;
+}
+
 .header {
     display: flex;
     justify-content: space-between;
