@@ -107,7 +107,7 @@ public class CrosswordServiceImpl implements CrosswordService {
         copyForClient.setWidth(crossword.getWidth());
         copyForClient.setClues(crossword.getClues());
 
-        List<Cell> cellsCopy = crossword.getCells().stream().map(cell -> new Cell(null, cell.getClueIds(), cell.getLabel())).toList();
+        List<Cell> cellsCopy = crossword.getCells().stream().map(cell -> new Cell(null, cell.getClueIds(), cell.getLabel(), cell.getType())).toList();
 
         copyForClient.setCells(cellsCopy);
 
