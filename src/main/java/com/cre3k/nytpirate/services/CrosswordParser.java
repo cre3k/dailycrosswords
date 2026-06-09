@@ -43,6 +43,16 @@ public class CrosswordParser {
         crossword.setWidth(board.getAsJsonObject("dimensions").getAsJsonPrimitive("width").getAsInt());
         if (root.has("assets")) {
             JsonArray assets = root.getAsJsonArray("assets");
+
+            /**
+             * Поисследовал их кроссворды — есть два вида спрайтов. Спрайты, которые видно с начала решения кроссворда,
+             * ссылки на них имеют формат
+             * "https://www.nytimes.com/games-assets/overlays/{date}.{crosswordType}.start.{ext}".
+             * Также есть спрайты, открывающиеся только после решения кроссворда, ссылки на них имеют формат
+             * "https://www.nytimes.com/games-assets/overlays/{date}.{crosswordType}.solve.{ext}".
+             * Фэйлсейф на случай если у ассета нет признака start или solve — в этом случае он сохранится как стартовый
+             * ассет и также будет виден с начала решения кроссворда.
+             */
             Map<String, String> assetUrls = StreamSupport.stream(assets.spliterator(), false)
                     .map(e -> e.getAsJsonObject().get("uri").getAsString())
                     .collect(Collectors.toMap(

@@ -253,6 +253,8 @@ async function checkAnswer() {
 async function performAutocheck() {
     const values = Array.from(inputs).map(input => input.value);
 
+    document.getElementById("current-input").removeAttribute('id');
+
     const autochecked = document.getElementById("autochecked");
 
             autochecked.hidden = false;
