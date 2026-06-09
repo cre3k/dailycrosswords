@@ -14,6 +14,10 @@
 <div id="crosswordWrapper" class="crosswordWrapper">
     <div class="board"
          th:style="'--cols: ' + ${crossword.width} + ';'">
+        <div class="board-overlay"
+             th:style="'background-image: url(' + ${crossword.startAsset} + ')'"
+             th:data-solve-asset="${crossword.solveAsset}"
+             id="boardOverlay"></div>
         <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
              th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '') + (${cell.circled} ? ' circled' : '')" th:data-index="${iterStat.index}"
              th:data-clues="${cell.clueIds}">

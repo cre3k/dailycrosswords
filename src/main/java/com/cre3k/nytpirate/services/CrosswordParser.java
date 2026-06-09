@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class CrosswordParser {
@@ -38,6 +41,17 @@ public class CrosswordParser {
         crossword.setClues(clueList);
         crossword.setHeight(board.getAsJsonObject("dimensions").getAsJsonPrimitive("height").getAsInt());
         crossword.setWidth(board.getAsJsonObject("dimensions").getAsJsonPrimitive("width").getAsInt());
+        if (root.has("assets")) {
+            JsonArray assets = root.getAsJsonArray("assets");
+            Map<String, String> assetUrls = StreamSupport.stream(assets.spliterator(), false)
+                    .map(e -> e.getAsJsonObject().get("uri").getAsString())
+                    .collect(Collectors.toMap(
+                            uri -> uri.contains("start") ? "start" : uri.contains("solve") ? "solve" : "start",
+                            uri -> uri
+                    ));
+            crossword.setStartAsset(assetUrls.get("start"));
+            crossword.setSolveAsset(assetUrls.get("solve"));
+        }
 
 
         // Проверим результат

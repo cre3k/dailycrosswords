@@ -13,5 +13,7 @@ public class Crossword {
     private List<Clue> clues;
     private int height;
     private int width;
+    private String startAsset;
+    private String solveAsset;
 
 }

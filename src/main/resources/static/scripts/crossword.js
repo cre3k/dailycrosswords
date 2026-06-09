@@ -230,10 +230,17 @@ async function checkAnswer() {
             const minutes = Math.floor(elapsed / 60);
             const seconds = Math.floor(elapsed % 60);
             const formatted = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
-            new Audio('win.mp3').play();
+            new Audio('/win.mp3').play();
             fail.hidden = true;
             success.textContent = `Congratulations! Solved in ${formatted}`;
             success.hidden = false;
+
+            // меняем оверлей
+            const overlay = document.getElementById('boardOverlay');
+            const solveAsset = overlay?.dataset.solveAsset;
+            if (overlay && solveAsset) {
+                overlay.style.backgroundImage = `url(${solveAsset})`;
+            }
         } else {
             success.hidden = true;
             fail.hidden = false;
