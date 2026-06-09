@@ -20,6 +20,7 @@
             <h1 th:text="${date} + ' mini'"></h1>
             <a href="/archive">Archive</a>
         </header>
+        <img  id="spinner" class="htmx-indicator" src="/img/bars.svg" alt="Loading..."/>
         <div id="crosswordDiv"
              th:hx-get="@{/crossword/{date}(date=${date})}"
              hx-trigger="load"
