@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<div th:fragment="monthsBlock">
+    <div id="months" role="group" class="wrap-group">
+        <button th:each="m : ${months}" th:text="${m}"
+                th:hx-get="@{/archive/dates(year=${year},month=${m})}"
+                hx-target="#dates"></button>
+    </div>
+    <div id="dates"></div>
+</div>
+
+<div th:fragment="datesBlock" class="wrap-group">
+    <div th:each="d : ${dates}" style="flex">
+        <a th:href="@{'/archive/' + ${d}}" th:text="${d}"></a>
+    </div>
+</div>
+
+</body>
+</html>

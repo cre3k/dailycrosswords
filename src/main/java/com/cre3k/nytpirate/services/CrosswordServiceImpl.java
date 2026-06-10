@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -136,5 +138,22 @@ public class CrosswordServiceImpl implements CrosswordService {
         return crossword.getCells().get(index).getAnswer();
     }
 
+    @Override
+    public List<Integer> getArchiveYears() {
+        return crosswordRepository.findDistinctYears();
+    }
+
+    @Override
+    public List<Month> getArchiveMonths(int year) {
+        return crosswordRepository.findDistinctMonthsByYear(year)
+                .stream().map(Month::of).toList();
+    }
+
+    @Override
+    public List<LocalDate> getArchiveDates(int year, Month month) {
+        LocalDate start = LocalDate.of(year, month, 1);
+        LocalDate end = start.with(TemporalAdjusters.lastDayOfMonth());
+        return crosswordRepository.findDatesBetween(start, end);
+    }
 
 }

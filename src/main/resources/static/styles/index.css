@@ -131,6 +131,18 @@ input.guess:active {
     display: none;
 }
 
+.wrap-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.wrap-group > button {
+    width: auto;
+    margin: 0;
+    border-radius: var(--pico-border-radius);
+}
+
 /* Мобильный layout */
 @media (max-width: 768px) {
     .crosswordWrapper {

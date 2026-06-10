@@ -4,7 +4,6 @@ package com.cre3k.nytpirate.controller;
 import com.cre3k.nytpirate.model.Clue;
 import com.cre3k.nytpirate.model.Crossword;
 import com.cre3k.nytpirate.model.Direction;
-import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.services.CrosswordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -12,9 +11,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 @Controller
@@ -22,8 +22,6 @@ public class HomeController {
 
     @Autowired
     CrosswordService crosswordService;
-    @Autowired
-    CrosswordRepository crosswordRepository;
 
     @GetMapping("/")
     public String homePage(Model model) {
@@ -47,10 +45,22 @@ public class HomeController {
     }
 
     @GetMapping("/archive")
-    public String showButtons(Model model) {
-        List<LocalDate> buttons = crosswordRepository.findAllDates();
-        model.addAttribute("crosswordEntities", buttons);
+    public String archive(Model model) {
+        model.addAttribute("years", crosswordService.getArchiveYears());
         return "archive";
+    }
+
+    @GetMapping("/archive/months")
+    public String archiveMonths(@RequestParam int year, Model model) {
+        model.addAttribute("year", year);
+        model.addAttribute("months", crosswordService.getArchiveMonths(year));
+        return "fragments/archiveParts :: monthsBlock";
+    }
+
+    @GetMapping("/archive/dates")
+    public String archiveDates(@RequestParam int year, @RequestParam Month month, Model model) {
+        model.addAttribute("dates", crosswordService.getArchiveDates(year, month));
+        return "fragments/archiveParts :: datesBlock";
     }
 
     @GetMapping("/archive/{date}")

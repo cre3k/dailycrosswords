@@ -5,21 +5,23 @@
     <meta charset="UTF-8">
     <title>Archive</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
     <link href="/styles/index.css" rel="stylesheet">
 </head>
 <body>
 <main class="container">
     <header class="header">
-        <h1 th:text="Archive"></h1>
+        <h1>Archive</h1>
         <a href="/">Today's crossword</a>
     </header>
-    <div class="">
-        <div>
-            <div th:each="crosswordEntity : ${crosswordEntities}">
-                <a th:href="@{'/archive/' + ${crosswordEntity}}" th:text="${crosswordEntity}"></a>
-            </div>
-        </div>
+
+    <div id="years" role="group" class="wrap-group">
+        <button th:each="y : ${years}" th:text="${y}"
+                th:hx-get="@{/archive/months(year=${y})}"
+                hx-target="#monthsAndDates"></button>
     </div>
+
+    <div id="monthsAndDates"></div>
 </main>
 
 </body>
