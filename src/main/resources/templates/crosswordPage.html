@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<html lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,16 +16,24 @@
 <main class="container">
     <section>
         <header class="header">
-            <h1 th:text="${date} + ' mini'"></h1>
+            <h1 th:text="${title}">Daily mini</h1>
             <a href="/archive">Archive</a>
         </header>
         <img  id="spinner" class="htmx-indicator" src="/img/bars.svg" alt="Loading..."/>
         <div id="crosswordDiv"
-             th:hx-get="@{/crossword/{date}(date=${date})}"
+             th:hx-get="${crosswordUrl}"
              hx-trigger="load"
              hx-indicator="#spinner">
         </div>
     </section>
 </main>
+<script>
+    document.body.addEventListener('htmx:beforeSwap', (evt) => {
+        if (evt.detail.xhr.status === 404) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+</script>
 </body>
 </html>

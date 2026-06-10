@@ -1,5 +1,6 @@
 package com.cre3k.nytpirate.services;
 
+import com.cre3k.nytpirate.exception.CrosswordNotFoundException;
 import com.cre3k.nytpirate.model.Cell;
 import com.cre3k.nytpirate.model.Clue;
 import com.cre3k.nytpirate.model.Crossword;
@@ -40,7 +41,7 @@ public class CrosswordServiceImpl implements CrosswordService {
 
         return getCrosswordByDateWithAnswer(currentDate).orElseGet(() -> {
             saveTodaysCrossword();
-            return parser.parseCrosswordFromJson(crosswordRepository.findByDate(currentDate).get().getPayload());
+            return parser.parseCrosswordFromJson(crosswordRepository.findByDate(currentDate).orElseThrow(() -> new CrosswordNotFoundException(currentDate)).getPayload());
         });
     }
 
@@ -118,7 +119,7 @@ public class CrosswordServiceImpl implements CrosswordService {
 
     @Override
     public void configureUserCrossword(LocalDate date) {
-        Crossword crossword = getCrosswordByDateWithAnswer(date).get();
+        Crossword crossword = getCrosswordByDateWithAnswer(date).orElseThrow(() -> new CrosswordNotFoundException(date));
         userSession.setCurrentUsersCrossword(crossword);
     }
 

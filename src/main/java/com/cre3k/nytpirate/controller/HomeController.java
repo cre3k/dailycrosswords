@@ -26,8 +26,10 @@ public class HomeController {
     CrosswordRepository crosswordRepository;
 
     @GetMapping("/")
-    public String homePage() {
-        return "index";
+    public String homePage(Model model) {
+        model.addAttribute("title", "Daily mini");
+        model.addAttribute("crosswordUrl", "/crossword/current");
+        return "crosswordPage";
     }
 
     @GetMapping("/crossword/current")
@@ -54,8 +56,9 @@ public class HomeController {
     @GetMapping("/archive/{date}")
     public String crosswordByDatePage(@PathVariable("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
                               Model model) {
-        model.addAttribute("date", date);
-        return "archiveCrossword";
+        model.addAttribute("title", date + " mini");
+        model.addAttribute("crosswordUrl", "/crossword/" + date);
+        return "crosswordPage";
     }
 
     @GetMapping("/crossword/{date}")

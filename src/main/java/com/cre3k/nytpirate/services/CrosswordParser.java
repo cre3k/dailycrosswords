@@ -56,8 +56,9 @@ public class CrosswordParser {
             Map<String, String> assetUrls = StreamSupport.stream(assets.spliterator(), false)
                     .map(e -> e.getAsJsonObject().get("uri").getAsString())
                     .collect(Collectors.toMap(
-                            uri -> uri.contains("start") ? "start" : uri.contains("solve") ? "solve" : "start",
-                            uri -> uri
+                            uri -> uri.contains("solve") ? "solve" : "start",
+                            uri -> uri,
+                            (first, second) -> first
                     ));
             crossword.setStartAsset(assetUrls.get("start"));
             crossword.setSolveAsset(assetUrls.get("solve"));
