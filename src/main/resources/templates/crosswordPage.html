@@ -19,7 +19,7 @@
             <h1 th:text="${title}">Daily mini</h1>
             <a href="/archive">Archive</a>
         </header>
-        <img  id="spinner" class="htmx-indicator" src="/img/bars.svg" alt="Loading..."/>
+        <span  id="spinner" aria-busy="true" class="htmx-indicator" alt="Loading..."> Loading...</span>
         <div id="crosswordDiv"
              th:hx-get="${crosswordUrl}"
              hx-trigger="load"
