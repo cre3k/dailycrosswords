@@ -13,17 +13,18 @@
 <body>
 <div id="crosswordWrapper" class="crosswordWrapper">
     <div class="board"
-         th:style="'--cols: ' + ${crossword.width} + ';'">
+         th:style="'--cols: ' + ${view.width} + ';'"
+         th:data-puzzle-date="${view.date}">
         <div class="board-overlay" id="boardOverlay"
-             th:if="${crossword.startAsset != null}"
-             th:style="'background-image: url(' + ${crossword.startAsset} + ')'"
-             th:data-solve-asset="${crossword.solveAsset}"></div>
-        <div th:each="cell, iterStat : ${crossword.cells}" th:id="'cell-' + ${iterStat.index}"
+             th:if="${view.startAsset != null}"
+             th:style="'background-image: url(' + ${view.startAsset} + ')'"
+             th:data-solve-asset="${view.solveAsset}"></div>
+        <div th:each="cell, iterStat : ${view.cells}" th:id="'cell-' + ${iterStat.index}"
              th:class="'cell ' + (${cell.clueIds == null} ? 'black' : '') + (${cell.circled} ? ' circled' : '')" th:data-index="${iterStat.index}"
              th:data-clues="${cell.clueIds}">
             <span class="label" th:text="${cell.label}"></span>
 
-            <input type="text" class="guess" maxlength="1" th:value="${cell.answer}"
+            <input type="text" class="guess" maxlength="1"
                    th:disabled="${cell.clueIds == null}" onkeydown="moveFocusWithArrows(event, this)"
                    onfocus="setCurrentCellId(this)">
         </div>
@@ -38,11 +39,11 @@
             <button id="autocheck" onclick="performAutocheck()">Check</button>
         </div>
         <h3>Across</h3>
-        <div class="clue" th:each="acrossClue, acrossClueStat : ${acrossClues}" th:text="${acrossClue.displayedText}">
+        <div class="clue" th:each="acrossClue, acrossClueStat : ${view.across}" th:text="${acrossClue.displayedText}">
 
         </div>
         <h3>Down</h3>
-        <div class="clue" th:each="downClue, downClueStat : ${downClues}" th:text="${downClue.displayedText}">
+        <div class="clue" th:each="downClue, downClueStat : ${view.down}" th:text="${downClue.displayedText}">
 
         </div>
     </div>

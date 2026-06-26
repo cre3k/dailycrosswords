@@ -1,17 +1,14 @@
 package com.cre3k.nytpirate.services;
 
 import com.cre3k.nytpirate.exception.CrosswordNotFoundException;
-import com.cre3k.nytpirate.model.Cell;
-import com.cre3k.nytpirate.model.Clue;
 import com.cre3k.nytpirate.model.Crossword;
-import com.cre3k.nytpirate.model.Direction;
+import com.cre3k.nytpirate.model.dto.CrosswordView;
 import com.cre3k.nytpirate.persistence.CrosswordEntity;
 import com.cre3k.nytpirate.persistence.CrosswordRepository;
 import com.cre3k.nytpirate.session.UserSession;
-import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -87,6 +84,7 @@ public class CrosswordServiceImpl implements CrosswordService {
         return correctLetters;
     }
 
+    @Transactional
     @Override
     public void saveTodaysCrossword() {
         LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
@@ -103,20 +101,9 @@ public class CrosswordServiceImpl implements CrosswordService {
     }
 
     @Override
-    public Crossword getClientUserCrossword() {
+    public CrosswordView getClientView(LocalDate date) {
         Crossword crossword = userSession.getCurrentUsersCrossword();
-        Crossword copyForClient = new Crossword();
-        copyForClient.setHeight(crossword.getHeight());
-        copyForClient.setWidth(crossword.getWidth());
-        copyForClient.setClues(crossword.getClues());
-        copyForClient.setStartAsset(crossword.getStartAsset());
-        copyForClient.setSolveAsset(crossword.getSolveAsset());
-
-        List<Cell> cellsCopy = crossword.getCells().stream().map(cell -> new Cell(null, cell.getClueIds(), cell.getLabel(), cell.getType())).toList();
-
-        copyForClient.setCells(cellsCopy);
-
-        return copyForClient;
+        return CrosswordView.from(crossword, date);
     }
 
     @Override
@@ -126,9 +113,11 @@ public class CrosswordServiceImpl implements CrosswordService {
     }
 
     @Override
-    public void configureTodayUserCrossword() {
+    public LocalDate configureTodayUserCrossword() {
+        LocalDate currentDate = LocalDate.now(ZoneId.of(NYT_TIMEZONE));
         Crossword crossword = getTodayCrosswordWithAnswers();
         userSession.setCurrentUsersCrossword(crossword);
+        return currentDate;
     }
 
 
