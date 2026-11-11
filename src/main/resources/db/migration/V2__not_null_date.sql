@@ -1,0 +1,1 @@
+ALTER TABLE crossword ALTER COLUMN date SET NOT NULL;
