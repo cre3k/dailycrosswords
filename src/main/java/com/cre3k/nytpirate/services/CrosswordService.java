@@ -1,5 +1,6 @@
 package com.cre3k.nytpirate.services;
 
+import com.cre3k.nytpirate.model.dto.CrosswordDto;
 import com.cre3k.nytpirate.model.dto.CrosswordView;
 
 import java.time.LocalDate;
@@ -13,6 +14,8 @@ public interface CrosswordService {
     boolean checkCurrentUserCrossword(List<String> answersToCheck);
 
     CrosswordView getClientView(LocalDate date);
+
+    CrosswordDto getClientDto(LocalDate date);
 
     void configureUserCrossword(LocalDate date);
 

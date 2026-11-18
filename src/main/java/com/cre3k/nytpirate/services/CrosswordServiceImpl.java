@@ -2,6 +2,7 @@ package com.cre3k.nytpirate.services;
 
 import com.cre3k.nytpirate.exception.CrosswordNotFoundException;
 import com.cre3k.nytpirate.model.Crossword;
+import com.cre3k.nytpirate.model.dto.CrosswordDto;
 import com.cre3k.nytpirate.model.dto.CrosswordView;
 import com.cre3k.nytpirate.persistence.CrosswordEntity;
 import com.cre3k.nytpirate.persistence.CrosswordRepository;
@@ -104,6 +105,12 @@ public class CrosswordServiceImpl implements CrosswordService {
     public CrosswordView getClientView(LocalDate date) {
         Crossword crossword = userSession.getCurrentUsersCrossword();
         return CrosswordView.from(crossword, date);
+    }
+
+    @Override
+    public CrosswordDto getClientDto(LocalDate date) {
+        Crossword crossword = userSession.getCurrentUsersCrossword();
+        return CrosswordDto.from(crossword, date);
     }
 
     @Override
