@@ -217,7 +217,7 @@ async function checkAnswer() {
     try {
         const response = await fetch(`/check`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: jsonHeaders(),
             body: JSON.stringify(values),
             credentials: 'include'
         });
@@ -266,7 +266,7 @@ async function performAutocheck() {
     try {
         const response = await fetch(`/autocheck`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: jsonHeaders(),
             body: JSON.stringify(values),
             credentials: 'include'
         });
@@ -324,7 +324,7 @@ document.getElementById('reveal').addEventListener('click', async () => {
     try {
         const response = await fetch('/reveal', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: jsonHeaders(),
             body: JSON.stringify(index)
         });
 
@@ -385,3 +385,13 @@ allCells.forEach(cell => {
         }
     });
 });
+
+function jsonHeaders() {
+    const token = document.head.querySelector('meta[name="_csrf"]').content;
+    const headerName = document.head.querySelector('meta[name="_csrf_header"]').content;
+
+    return {
+        'Content-Type': 'application/json',
+        [headerName]: token
+    };
+}
